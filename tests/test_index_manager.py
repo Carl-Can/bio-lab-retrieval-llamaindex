@@ -26,6 +26,9 @@ class TestIndexManager(unittest.TestCase):
             ChromaVectorStore=Mock(),
             StorageContext=Mock(),
             VectorStoreIndex=Mock(),
+            # 挡住真实构造：HuggingFace 分支会 import torch，CI 依赖里没有它
+            _build_llm=Mock(return_value=Mock(name="llm")),
+            _build_embed_model=Mock(return_value=Mock(name="embed")),
         )
         self.addCleanup(patcher.stop)
         patcher.start()
