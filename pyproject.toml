@@ -1,0 +1,41 @@
+[project]
+name = "bio-lab-retrieval-system"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "llama-index",
+    "llama-index-llms-openai",
+    "llama-index-embeddings-openai",
+    "llama-index-embeddings-huggingface",
+    "llama-index-readers-file",
+    "pymupdf>=1.23.21",
+    "docx2txt>=0.8",
+    "llama-index-vector-stores-chroma",
+    "chromadb>=0.4.22,<0.5.0",
+    "numpy>=1.22.0,<2.0.0",
+    "torch>=2.0.0",
+    "transformers>=5.0.0",
+    "sentence-transformers>=5.0.0",
+    "compressed-tensors>=0.19.0",
+    "accelerate>=1.0.0",
+    "loguru>=0.7.0",
+    "jieba>=0.42.0",
+    "onnxruntime>=1.17.0",
+    "rank-bm25>=0.2.2",
+    "fastapi>=0.115.0",
+    "httpx>=0.27.0,<0.28",
+    "uvicorn>=0.23.0",
+    "python-multipart>=0.0.6",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.0.1,<3.0.0",
+    "setuptools>=65.0.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black",
+    "flake8>=6.0.0",
+]
+
+[tool.uv]
+

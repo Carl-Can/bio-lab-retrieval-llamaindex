@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      run_gpu_evals:
+        description: "在自托管 GPU runner 上跑检索回归门禁 + 答案质量评测"
+        type: boolean
+        default: false
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - run: pip install "flake8>=6.0.0"
+      - name: flake8
+        run: >-
+          flake8 core api config scripts
+          --max-line-length=115 --extend-ignore=E203,E402
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+      - name: install (CI deps, no torch)
+        run: pip install -r requirements-ci.txt
+      - name: model-free unit tests
+        env:
+          CHROMA_PATH: /tmp/ci_chroma
+          STORAGE_DIR: /tmp/ci_storage
+          UPLOAD_FOLDER: /tmp/ci_uploads
+          DOCS_FOLDER: /tmp/ci_docs
+        run: pytest -m "not heavy" -q
+      - name: validate eval set
+        run: python scripts/validate_evals.py --qa evals/qa_pairs_all.json --min-count 150
+
+  # 需要 GPU / 本地模型 / vLLM 的评测（检索回归、答案质量）在本地或专用 runner 上跑：
+  #   uv run python scripts/eval_retrieval.py --retrieval hybrid --top-k 5
+  #   uv run python scripts/eval_answer_quality.py --limit 50
+  #   uv run python scripts/eval_rerank_ab.py --retrieval hybrid
+
+  gpu-evals:
+    if: github.event_name == 'workflow_dispatch' && inputs.run_gpu_evals
+    runs-on: [ self-hosted, gpu ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: 依赖
+        run: uv sync
+      # 前置：索引已重建、vLLM 在跑（LLM_PROVIDER=vllm）
+      - name: 检索回归门禁（检索链路）
+        run: >-
+          uv run python scripts/eval_retrieval.py
+          --retrieval hybrid --rerank none --top-k 5
+          --check-baseline evals/retrieval_baseline.json --tolerance 0.02
+      - name: 检索回归门禁（生产链路 hybrid + bge-onnx）
+        run: >-
+          uv run python scripts/eval_retrieval.py
+          --retrieval hybrid --rerank bge-onnx --fetch-k 20 --top-k 5
+          --check-baseline evals/pipeline_baseline.json --tolerance 0.02
+      - name: 答案质量门禁（困难子集）
+        run: >-
+          uv run python scripts/eval_answer_quality.py
+          --only-hard --out evals/answer_quality_hard.json
+          --min-faithfulness 0.90 --min-relevancy 0.90
+

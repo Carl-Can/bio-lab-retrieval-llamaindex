@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+*.egg
+
+# Virtual environment
+.venv/
+venv/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Private knowledge base. chroma_db/ and storage/ keep the same text.
+docs/
+
+# Notes and reviews. Keep the repository README.
+*.md
+!README.md
+!readme.md
+
+# ChromaDB vector store (embeddings + document text)
+chroma_db/
+
+# LlamaIndex docstore / index_store persistence
+storage/
+
+# Eval dumps derived from the private corpus (answers, doc ids, queries)
+evals/
+
+# Query logs
+logs/
+
+# Uploaded files
+uploads/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Logs
+*.log
+nohup.out
+
+# Local databases and keys
+*.sqlite
+*.sqlite3
+*.db
+*.pem
+*.key
