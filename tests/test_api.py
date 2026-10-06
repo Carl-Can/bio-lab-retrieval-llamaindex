@@ -5,8 +5,6 @@ import pytest
 pytestmark = pytest.mark.heavy
 import tempfile
 import os
-from fastapi.testclient import TestClient
-from api.main import app, index_manager
 
 class TestAPI(unittest.TestCase):
     """
@@ -17,6 +15,10 @@ class TestAPI(unittest.TestCase):
         """
         测试前准备
         """
+        # 推迟到用例执行时再导入，避免 CI 收集阶段加载 FastAPI 和 Embedding 模型
+        from fastapi.testclient import TestClient
+        from api.main import app, index_manager
+
         # 清空索引，保证测试互相隔离（否则 /query 会触发真实 LLM 调用）
         index_manager.reset()
         self.client = TestClient(app)

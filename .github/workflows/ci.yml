@@ -43,6 +43,8 @@ jobs:
           DOCS_FOLDER: /tmp/ci_docs
         run: pytest -m "not heavy" -q
       - name: validate eval set
+        # 评测集和 docs/ 不进公开仓库；本地或带有该文件的 checkout 仍会跑
+        if: ${{ hashFiles('evals/qa_pairs_all.json') != '' }}
         run: python scripts/validate_evals.py --qa evals/qa_pairs_all.json --min-count 150
 
   # 需要 GPU / 本地模型 / vLLM 的评测（检索回归、答案质量）在本地或专用 runner 上跑：
